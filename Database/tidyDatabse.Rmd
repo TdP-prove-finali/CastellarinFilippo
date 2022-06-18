@@ -1,0 +1,166 @@
+---
+title: "Theming with bslib and thematic"
+output: html_notebook
+author: Filippo Castellarin
+---
+
+# Importazione delle librerie necessarie
+
+```{r}
+library(shiny)
+library(ggplot2)
+library(readxl)
+library(tidyverse)
+library(magrittr)
+```
+
+# Operazioni sul database delle città
+
+## Lettura file
+
+```{r}
+cities <- read_xlsx("urb_ctour/cities.xlsx")
+cities
+```
+
+## Aggiustamento campi
+
+### Rinomino le colonne
+```{r}
+names(cities) <- c("CITIES", "INDIC_UR", "2018", "NA1", "2019", "NA2", "2020", "NA3")
+```
+
+
+### Rimozione dati sugli stati
+
+Il database contiene anche dati sui vari Paesi, che ai fini di questa applicazione non sono necessari, e pertanto verranno ripuliti.
+
+Per farlo verrà creato un Array contenente i vari paesi contenuti nel database, presi dalle prime 204 righe del database e ripulite (ogni stato appare 5 volte).
+
+```{r}
+temp <- cities %>% head(204) %>% select(CITIES) %>% mutate(CITIES = as_factor(CITIES))
+statesEU <- levels(temp$CITIES)
+
+cities %<>% filter(!CITIES %in% statesEU)
+```
+
+### Rimozione colonna flag
+
+```{r}
+cities %<>% select(-"NA1", -"NA2", -"NA3")
+```
+
+### Cambio valore ':'
+
+```{r}
+cities %<>% mutate(V2018=str_replace_all(.$"2018","[:]","0"))
+cities %<>% mutate(V2019=str_replace_all(.$"2019","[:]","0"))
+cities %<>% mutate(V2020=str_replace_all(.$"2020","[:]","0"))
+
+## conversione in integer
+cities %<>% mutate(V2018=parse_integer(V2018), V2019=parse_integer(V2019), V2020=parse_integer(V2020))
+
+## tolgo le vecchie colonne della serie temporale
+cities %<>% select(-"2018", -"2019", -"2020") 
+```
+
+<!-- ### Gestione caratteri non correttamente renderizzati -->
+
+<!-- Sono codificati in HEX, in ogni caso non dovrebbe essere necessaria la conversione usando un charset di tipo UTF-8 durante l'importazione su un software sql. -->
+
+<!-- In ogni caso, vanno verificate le corrispondenze con il database sulle stazioni. -->
+
+<!-- --- -->
+<!-- library(wkb) -->
+<!-- > s <- "f3" -->
+<!-- > s_r <- wkb::hex2raw(s) -->
+<!-- > s_r -->
+<!-- [1] f3 -->
+<!-- > t <- rawToChar(as.raw(strtoi(s_r, 16L))) -->
+<!-- > t -->
+<!-- [1] "ó" -->
+
+<!-- --- -->
+
+<!-- ```{r} -->
+<!-- cities %>% filter(str_match(CITIES, "[^a-zA-Z]")!="") -->
+<!-- # cities %>% mutate(CITIES=str_replace_all(CITIES, "[<f3>]", "o")) -->
+<!-- # cities %>% mutate(CITIES=str_replace_all(CITIES, "^[<fc>]$", "u")) -->
+<!-- # cities %>% mutate(CITIES=str_replace_all(CITIES, c("<e8>"="e"))) -->
+<!-- ``` -->
+
+<!-- ### Gestione annualità -->
+
+<!-- Poiché per lo scopo di questa applicazione è sufficiente un database concernente i dati più recenti riguardo le città, verranno rimosse le quantità temporali in modo tale da avere un valore per ogni città e rendere più agevoli le operazioni di calcolo sul database. -->
+
+<!-- *Si noti che la successione temporale è del tutto irrilevante per i fini dell'applicazione, che solamente valuta il valore più recente.* -->
+
+# Operazioni sul database delle stazioni
+
+<!-- Query per SQL table -->
+<!-- CREATE TABLE `stations`.`stations` ( -->
+<!--  id INTEGER, -->
+<!--  `name` VARCHAR(30), -->
+<!--  slug VARCHAR(30), -->
+<!--  uic VARCHAR(30), -->
+<!--  latitude DECIMAL(8,6), -->
+<!--  longitude DECIMAL(9,6), -->
+<!--  parent_station_id INTEGER, -->
+<!--  country VARCHAR(2), -->
+<!--  timezone VARCHAR(20), -->
+<!--  isCity BOOLEAN, -->
+<!--  isMainStation BOOLEAN, -->
+<!--  isAirport BOOLEAN, -->
+<!--  isSuggestable BOOLEAN, -->
+<!--  flixbus_is_enabled BOOLEAN, -->
+<!--  sncf_self_service_machine BOOLEAN, -->
+<!--  normalised_code VARCHAR(30),        -->
+<!--  iata_airport_code VARCHAR(3) -->
+
+
+## Lettura file
+```{r}
+stations <- read_csv2("stations/stations-master/stations.csv")
+stations
+```
+
+## Aggiustamento campi
+### Rimozione dati non necessari
+Tutti i dati relativi alle varie società di trasporto ferroviario partner di Trainline possono essere rimossi in quanto non necessari.
+
+Anche i dati che riguardano identificativi vari e "hint" non sono necessari.
+```{r}
+stations %<>% 
+  select(-uic8_sncf, -country_hint, -main_station_hint, -sncf_tvs_id, -sncf_id, -sncf_is_enabled, -entur_id, -entur_is_enabled, -db_id, -db_is_enabled, -busbud_id, -busbud_is_enabled, -distribusion_id, -distribusion_is_enabled, -cff_id, -cff_is_enabled, -leoexpress_id, -leoexpress_is_enabled, -obb_id, -obb_is_enabled, -ouigo_id, -ouigo_is_enabled, -trenitalia_id, -trenitalia_is_enabled, -trenitalia_rtvt_id, -ntv_id, -ntv_rtiv_id, -ntv_is_enabled, -hkx_id, -hkx_is_enabled, -renfe_is_enabled, -renfe_id, -atoc_id, -atoc_is_enabled, -benerail_id, -benerail_is_enabled, -westbahn_id, -westbahn_is_enabled, -same_as, -`info:de`, -`info:en`, -`info:es`, -`info:fr`, -`info:it`, -`info:nb`, -`info:nl`, -`info:cs`, -`info:cs`, -`info:da`, -`info:hu`, -`info:ja`, -`info:ko`, -`info:pl`, -`info:pt`, -`info:ru`, -`info:sv`, -`info:tr`, -`info:zh`, -flixbus_id)
+```
+
+# Join tra i database
+Per poter gestire correttamente le informazioni tra i database è necessario che i nomi delle città siano compatibili tra i due database.
+Per fare ciò è necessario andare ad agire su uno dei due e riportare i valori uguali all'altro database.
+```{r}
+t1 <- cities %>% filter(!(CITIES %in% stations$name)) %>% select(CITIES)
+t2 <- stations %>% filter(!(name %in% cities$CITIES)) %>% select(name)
+```
+
+Creo un nuovo campo all'interno del quale sono contenuti i nomi delle città in minuscolo e senza accenti. In questo modo sarà più facile il confronto anche in caso di salvataggi con lettere accentate diverse tra i due database.
+```{r}
+cities %<>% mutate(slug=str_replace_all(tolower(CITIES), c("[è|é]"="e", "[ò|ó]"="o", "[ü|ú|ù]"="u", "[ì|í|ï]"="i", "[ä|à|á]"="a", "[ñ]"="n", "[ ]"="-", "ç"="c")))
+
+## inserisco il '-' al posto dello spazio anche nel database sulle stazioni
+stations %<>% mutate(slug=str_replace_all(slug, c("[ ]"="-")))
+```
+
+```{r}
+join <- inner_join(cities, stations, by=c("slug"="slug"))
+join %<>% mutate(cityName=CITIES) %>% select(-name, -CITIES)
+join %<>%
+  distinct(INDIC_UR, cityName, .keep_all = TRUE)
+```
+
+
+# Scrittura file
+```{r}
+write_csv(cities, "urban_cities_tidier.csv")
+write_csv(stations, "stations_tidier.csv")
+write_csv(join, "cityTourStations.csv")
+```
