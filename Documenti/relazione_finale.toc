@@ -1,0 +1,21 @@
+\contentsline {section}{\numberline {1}Proposta dello studente}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1} Studente proponente}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2} Descrizione del problema proposto}{3}{subsection.1.2}%
+\contentsline {subsubsection}{\numberline {1.2.1} Descrizione della rilevanza gestionale del problema}{3}{subsubsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.3} Descrizione dei data-set}{3}{subsection.1.3}%
+\contentsline {paragraph}{Nota: \\}{3}{section*.3}%
+\contentsline {subsection}{\numberline {1.4} Descrizione degli algoritmi coinvolti e istruzioni sull'uso}{4}{subsection.1.4}%
+\contentsline {paragraph}{NOTA:\\}{4}{section*.4}%
+\contentsline {section}{\numberline {2}Descrizione del problema}{5}{section.2}%
+\contentsline {section}{\numberline {3}Descrizione del data-set}{6}{section.3}%
+\contentsline {section}{\numberline {4}Descrizione degli algoritmi}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Diagramma delle classi principali}{7}{subsection.4.1}%
+\contentsline {section}{\numberline {5}Risultati}{8}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Link al video dimostrativo}{9}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Tabella dei risultati ottenuti}{10}{subsection.5.2}%
+\contentsline {paragraph}{}{10}{section*.5}%
+\contentsline {section}{\numberline {6}Considerazioni finali}{11}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Punti di forza}{11}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Limiti}{11}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Conclusioni}{11}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Licenza d'uso}{12}{section.7}%

@@ -46,7 +46,7 @@ public class Model {
 	}
 
 	public List<Statistic> getStats() {
-		return this.idMap.get("Torino").getStats();
+		return this.idMap.get("Torino").getStats(); // one random city just to have all stats loaded
 	}
 
 	public void createGraph(int dot, String indic, City origin) {

@@ -104,7 +104,7 @@ public class FXMLController {
     		this.txtResult.appendText("The best cities to visit for you are: ");
     		for(int i=1; i<cities.size(); i++) { // first position is for origin City
     			if(cities.get(i).size() > 1) {
-    				this.txtResult.appendText("\n\tThose following cities can be visited during the same day: ");
+    				this.txtResult.appendText("\n\tThose following cities can be visited on the same day: ");
     				for(City c : cities.get(i)) {
     					this.txtResult.appendText("\n\t\t- " + c.toString());
     				}
@@ -125,12 +125,10 @@ public class FXMLController {
     	this.cmbOriginCity.getItems().clear();
     	this.txtResult.clear();
     	this.cmbTravelDays.getItems().clear();
+    	this.cmbOriginCountry.getItems().clear();
     	
-    	this.loadTravelDays();
-    	this.cmbOriginCountry.getSelectionModel().clearSelection();
-    	this.cmbOriginCountry.setPromptText("Country");
-
-    	this.cmbOriginCity.setDisable(true);
+    	this.cmbOriginCountry.getItems().addAll(model.getCountries());
+    	this.initialize();
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -148,7 +146,6 @@ public class FXMLController {
     public void setModel(Model m) {
     	this.model = m;
     	
-    	System.out.println(this.cmbOriginCountry.getValue());
     	this.cmbOriginCountry.getItems().addAll(model.getCountries());
     }
     
