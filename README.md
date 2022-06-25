@@ -1,4 +1,4 @@
-# Applicazione per simulazione campionato F1
+# Applicazione per il calcolo di un itinerario Interrail
 ## Istruzioni per l'installazione dell'applicazione
 1. Effettuare il fork del progetto e clonare sul proprio editor (ad esempio Eclipse) il progetto al link: https://github.com/TdP-prove-finali/CastellarinFilippo
 2. Importare sul proprio server locale il database "cityTourStation" situato all'interno della cartella "Database" eseguendo lo script `CityTourStation.sql`
